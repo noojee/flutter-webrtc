@@ -13,3 +13,7 @@ example/android/gradle*
 WorkspaceSettings.xcsettings
 example/.flutter-plugins
 example/android/local.properties
+.dart_tool
+example/.flutter-plugins-dependencies
+example/.dart_tool
+example/.flutter-plugins-dependencies
