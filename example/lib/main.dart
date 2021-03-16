@@ -19,7 +19,7 @@ enum DialogDemoAction {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<RouteItem> items;
+  late List<RouteItem> items;
 
   @override
   initState() {

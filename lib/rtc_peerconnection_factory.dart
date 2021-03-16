@@ -13,14 +13,14 @@ Future<RTCPeerConnection> createPeerConnection(Map<String, dynamic> configuratio
     ],
   };
 
-  final Map<dynamic, dynamic> response = await channel.invokeMethod(
+  final Map<dynamic, dynamic> response = await (channel.invokeMethod(
     'createPeerConnection',
     <String, dynamic>{
       'configuration': configuration,
       'constraints': constraints.length == 0 ? defaultConstraints : constraints
     },
-  );
+  ) as FutureOr<Map<dynamic, dynamic>>);
 
-  String peerConnectionId = response['peerConnectionId'];
+  String? peerConnectionId = response['peerConnectionId'];
   return new RTCPeerConnection(peerConnectionId, configuration);
 }

@@ -12,34 +12,35 @@ enum RTCVideoViewObjectFit {
 
 class RTCVideoRenderer {
   MethodChannel _channel = WebRTC.methodChannel();
-  int _textureId;
-  int _rotation = 0;
+  int? _textureId;
+  int? _rotation = 0;
   double _width = 0.0, _height = 0.0;
   bool _mirror = false;
+  // ignore: unused_field
   double _aspectRatio = 1.0;
-  MediaStream _srcObject;
+  MediaStream? _srcObject;
   RTCVideoViewObjectFit _objectFit =
       RTCVideoViewObjectFit.RTCVideoViewObjectFitContain;
-  StreamSubscription<dynamic> _eventSubscription;
+  StreamSubscription<dynamic>? _eventSubscription;
 
   dynamic onStateChanged;
 
   initialize() async {
     final Map<dynamic, dynamic> response =
-        await _channel.invokeMethod('createVideoRenderer', {});
+        await (_channel.invokeMethod('createVideoRenderer', {}) as FutureOr<Map<dynamic, dynamic>>);
     _textureId = response['textureId'];
     _eventSubscription = _eventChannelFor(_textureId)
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
   }
 
-  int get rotation => _rotation;
+  int? get rotation => _rotation;
 
   double get width => _width;
 
   double get height => _height;
 
-  int get textureId => _textureId;
+  int? get textureId => _textureId;
 
   double get aspectRatio => (_width == 0 || _height == 0)
       ? 1.0
@@ -65,11 +66,11 @@ class RTCVideoRenderer {
     }
   }
 
-  set srcObject(MediaStream stream) {
+  set srcObject(MediaStream? stream) {
     _srcObject = stream;
     _channel.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
       'textureId': _textureId,
-      'streamId': stream != null ? stream.id : ''
+      'streamId': stream!.id ?? ''
     });
   }
 
@@ -81,7 +82,7 @@ class RTCVideoRenderer {
     );
   }
 
-  EventChannel _eventChannelFor(int textureId) {
+  EventChannel _eventChannelFor(int? textureId) {
     return new EventChannel('FlutterWebRTC/Texture$textureId');
   }
 
@@ -104,7 +105,7 @@ class RTCVideoRenderer {
   }
 
   void errorListener(Object obj) {
-    final PlatformException e = obj;
+    final PlatformException e = obj as PlatformException;
     throw e;
   }
 }
@@ -118,9 +119,9 @@ class RTCVideoView extends StatefulWidget {
 
 class _RTCVideoViewState extends State<RTCVideoView> {
   final RTCVideoRenderer _renderer;
-  double _aspectRatio;
-  RTCVideoViewObjectFit _objectFit;
-  bool _mirror;
+  late double _aspectRatio;
+  RTCVideoViewObjectFit? _objectFit;
+  late bool _mirror;
   _RTCVideoViewState(this._renderer);
 
   @override
@@ -166,7 +167,7 @@ class _RTCVideoViewState extends State<RTCVideoView> {
                           ..rotateY(_mirror ? -pi : 0.0),
                         alignment: FractionalOffset.center,
                         child:
-                            new Texture(textureId: _renderer._textureId))))));
+                            new Texture(textureId: _renderer._textureId!))))));
   }
 
   @override

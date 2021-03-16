@@ -7,7 +7,7 @@ class WebRTC {
   static MethodChannel methodChannel() => _channel;
 }
 
-RTCIceConnectionState iceConnectionStateForString(String state) {
+RTCIceConnectionState iceConnectionStateForString(String? state) {
   switch (state) {
     case "new":
       return RTCIceConnectionState.RTCIceConnectionStateNew;
@@ -29,7 +29,7 @@ RTCIceConnectionState iceConnectionStateForString(String state) {
   return RTCIceConnectionState.RTCIceConnectionStateClosed;
 }
 
-RTCIceGatheringState iceGatheringStateforString(String state) {
+RTCIceGatheringState iceGatheringStateforString(String? state) {
   switch (state) {
     case "new":
       return RTCIceGatheringState.RTCIceGatheringStateNew;
@@ -41,7 +41,7 @@ RTCIceGatheringState iceGatheringStateforString(String state) {
   return RTCIceGatheringState.RTCIceGatheringStateNew;
 }
 
-RTCSignalingState signalingStateForString(String state) {
+RTCSignalingState signalingStateForString(String? state) {
   switch (state) {
     case "stable":
       return RTCSignalingState.RTCSignalingStateStable;
@@ -59,7 +59,7 @@ RTCSignalingState signalingStateForString(String state) {
   return RTCSignalingState.RTCSignalingStateClosed;
 }
 
-RTCDataChannelState rtcDataChannelStateForString(String state) {
+RTCDataChannelState rtcDataChannelStateForString(String? state) {
   switch (state) {
     case "connecting":
       return RTCDataChannelState.RTCDataChannelConnecting;

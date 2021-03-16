@@ -13,12 +13,12 @@ class LoopBackSample extends StatefulWidget {
 }
 
 class _MyAppState extends State<LoopBackSample> {
-  MediaStream _localStream;
-  RTCPeerConnection _peerConnection;
+  MediaStream? _localStream;
+  RTCPeerConnection? _peerConnection;
   final _localRenderer = new RTCVideoRenderer();
   final _remoteRenderer = new RTCVideoRenderer();
   bool _inCalling = false;
-  Timer _timer;
+  late Timer _timer;
 
   @override
   initState() {
@@ -43,14 +43,14 @@ class _MyAppState extends State<LoopBackSample> {
 
   void handleStatsReport(Timer timer) async {
     if (_peerConnection != null) {
-      List<StatsReport> reports = await _peerConnection.getStats(null);
+      List<StatsReport> reports = await _peerConnection!.getStats(null);
       reports.forEach((report) {
         print("report => { ");
-        print("    id: " + report.id + ",");
-        print("    type: " + report.type + ",");
+        print("    id: " + report.id! + ",");
+        print("    type: " + report.type! + ",");
         print("    timestamp: ${report.timestamp},");
         print("    values => {");
-        report.values.forEach((key, value) {
+        report.values!.forEach((key, value) {
           print("        " + key + " : " + value + ", ");
         });
         print("    }");
@@ -59,30 +59,30 @@ class _MyAppState extends State<LoopBackSample> {
     }
   }
 
-  _onSignalingState(RTCSignalingState state) {
+  _onSignalingState(RTCSignalingState? state) {
     print(state);
   }
 
-  _onIceGatheringState(RTCIceGatheringState state) {
+  _onIceGatheringState(RTCIceGatheringState? state) {
     print(state);
   }
 
-  _onIceConnectionState(RTCIceConnectionState state) {
+  _onIceConnectionState(RTCIceConnectionState? state) {
     print(state);
   }
 
-  _onAddStream(MediaStream stream) {
-    print('addStream: ' + stream.id);
+  _onAddStream(MediaStream? stream) {
+    print('addStream: ' + stream!.id!);
     _remoteRenderer.srcObject = stream;
   }
 
-  _onRemoveStream(MediaStream stream) {
+  _onRemoveStream(MediaStream? stream) {
     _remoteRenderer.srcObject = null;
   }
 
   _onCandidate(RTCIceCandidate candidate) {
-    print('onCandidate: ' + candidate.candidate);
-    _peerConnection.addCandidate(candidate);
+    print('onCandidate: ' + candidate.candidate!);
+    _peerConnection!.addCandidate(candidate);
   }
 
   _onRenegotiationNeeded() {
@@ -128,28 +128,28 @@ class _MyAppState extends State<LoopBackSample> {
     if (_peerConnection != null) return;
 
     try {
-      _localStream = await navigator.getUserMedia(mediaConstraints);
-      _localRenderer.srcObject = _localStream;
+      _localStream = await MediaNavigator.getUserMedia(mediaConstraints);
+      _localRenderer.srcObject = _localStream!;
       _localRenderer.mirror = true;
       _peerConnection =
       await createPeerConnection(configuration, loopbackConstraints);
 
-      _peerConnection.onSignalingState = _onSignalingState;
-      _peerConnection.onIceGatheringState = _onIceGatheringState;
-      _peerConnection.onIceConnectionState = _onIceConnectionState;
-      _peerConnection.onAddStream = _onAddStream;
-      _peerConnection.onRemoveStream = _onRemoveStream;
-      _peerConnection.onIceCandidate = _onCandidate;
-      _peerConnection.onRenegotiationNeeded = _onRenegotiationNeeded;
+      _peerConnection!.onSignalingState = _onSignalingState;
+      _peerConnection!.onIceGatheringState = _onIceGatheringState;
+      _peerConnection!.onIceConnectionState = _onIceConnectionState;
+      _peerConnection!.onAddStream = _onAddStream;
+      _peerConnection!.onRemoveStream = _onRemoveStream;
+      _peerConnection!.onIceCandidate = _onCandidate;
+      _peerConnection!.onRenegotiationNeeded = _onRenegotiationNeeded;
 
-      _peerConnection.addStream(_localStream);
+      _peerConnection!.addStream(_localStream!);
       RTCSessionDescription description =
-      await _peerConnection.createOffer(offerSdpConstraints);
+      await _peerConnection!.createOffer(offerSdpConstraints);
       print(description.sdp);
-      _peerConnection.setLocalDescription(description);
+      _peerConnection!.setLocalDescription(description);
       //change for loopback.
       description.type = 'answer';
-      _peerConnection.setRemoteDescription(description);
+      _peerConnection!.setRemoteDescription(description);
     } catch (e) {
       print(e.toString());
     }
@@ -164,8 +164,8 @@ class _MyAppState extends State<LoopBackSample> {
 
   _hangUp() async {
     try {
-      await _localStream.dispose();
-      await _peerConnection.close();
+      await _localStream!.dispose();
+      await _peerConnection!.close();
       _peerConnection = null;
       _localRenderer.srcObject = null;
       _remoteRenderer.srcObject = null;

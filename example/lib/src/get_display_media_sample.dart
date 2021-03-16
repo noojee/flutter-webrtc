@@ -13,10 +13,10 @@ class GetDisplayMediaSample extends StatefulWidget {
 }
 
 class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
-  MediaStream _localStream;
+  MediaStream? _localStream;
   final _localRenderer = new RTCVideoRenderer();
   bool _inCalling = false;
-  Timer _timer;
+  Timer? _timer;
   var _counter = 0;
 
   @override
@@ -31,7 +31,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     if (_inCalling) {
       _hangUp();
     }
-    if(_timer != null) _timer.cancel();
+    if(_timer != null) _timer!.cancel();
     _localRenderer.dispose();
   }
 
@@ -53,9 +53,9 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     };
 
     try {
-      var stream = await navigator.getDisplayMedia(mediaConstraints);
+      var stream = await MediaNavigator.getDisplayMedia(mediaConstraints);
       _localStream = stream;
-      _localRenderer.srcObject = _localStream;
+      _localRenderer.srcObject = _localStream!;
     } catch (e) {
       print(e.toString());
     }
@@ -70,7 +70,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
 
   _hangUp() async {
     try {
-      await _localStream.dispose();
+      await _localStream!.dispose();
       _localRenderer.srcObject = null;
     } catch (e) {
       print(e.toString());
@@ -78,7 +78,7 @@ class _GetDisplayMediaSampleState extends State<GetDisplayMediaSample> {
     setState(() {
       _inCalling = false;
     });
-    _timer.cancel();
+    _timer!.cancel();
   }
 
   @override

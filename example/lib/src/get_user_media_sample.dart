@@ -16,10 +16,10 @@ class GetUserMediaSample extends StatefulWidget {
 }
 
 class _GetUserMediaSampleState extends State<GetUserMediaSample> {
-  MediaStream _localStream;
+  MediaStream? _localStream;
   final _localRenderer = new RTCVideoRenderer();
   bool _inCalling = false;
-  MediaRecorder _mediaRecorder;
+  MediaRecorder? _mediaRecorder;
   get _isRec => _mediaRecorder != null;
 
   @override
@@ -47,7 +47,8 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
       "audio": false,
       "video": {
         "mandatory": {
-          "minWidth": '1280', // Provide your own width, height and frame rate here
+          "minWidth":
+              '1280', // Provide your own width, height and frame rate here
           "minHeight": '720',
           "minFrameRate": '30',
         },
@@ -57,9 +58,9 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
     };
 
     try {
-      var stream = await navigator.getUserMedia(mediaConstraints);
+      var stream = await MediaNavigator.getUserMedia(mediaConstraints);
       _localStream = stream;
-      _localRenderer.srcObject = _localStream;
+      _localRenderer.srcObject = _localStream!;
       _localRenderer.mirror = true;
     } catch (e) {
       print(e.toString());
@@ -73,7 +74,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
 
   _hangUp() async {
     try {
-      await _localStream.dispose();
+      await _localStream!.dispose();
       _localRenderer.srcObject = null;
     } catch (e) {
       print(e.toString());
@@ -89,13 +90,15 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
       return;
     }
     //TODO(rostopira): request write storage permission
-    final storagePath = await getExternalStorageDirectory();
+    final storagePath = await getExternalStorageDirectory() ?? Directory('.');
     final filePath = storagePath.path + '/webrtc_sample/test.mp4';
     _mediaRecorder = MediaRecorder();
     setState(() {});
-    await _localStream.getMediaTracks();
-    final videoTrack = _localStream.getVideoTracks().firstWhere((track) => track.kind == "video");
-    await _mediaRecorder.start(
+    await _localStream!.getMediaTracks();
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == "video");
+    await _mediaRecorder!.start(
       filePath,
       videoTrack: videoTrack,
     );
@@ -111,14 +114,17 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   _captureFrame() async {
     String filePath;
     if (Platform.isAndroid) {
-      final storagePath = await getExternalStorageDirectory();
+      final storagePath =
+          (await getExternalStorageDirectory()) ?? Directory('.');
       filePath = storagePath.path + '/webrtc_sample/test.jpg';
     } else {
       final storagePath = await getApplicationDocumentsDirectory();
       filePath = storagePath.path + '/test${DateTime.now()}.jpg';
     }
 
-    final videoTrack = _localStream.getVideoTracks().firstWhere((track) => track.kind == "video");
+    final videoTrack = _localStream!
+        .getVideoTracks()
+        .firstWhere((track) => track.kind == "video");
     videoTrack.captureFrame(filePath);
   }
 

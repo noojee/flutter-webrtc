@@ -5,27 +5,27 @@ import 'utils.dart';
 
 class MediaStreamTrack {
   MethodChannel _channel = WebRTC.methodChannel();
-  String _trackId;
-  String _label;
-  String _kind;
-  bool _enabled;
+  String? _trackId;
+  String? _label;
+  String? _kind;
+  bool? _enabled;
 
   MediaStreamTrack(this._trackId, this._label, this._kind, this._enabled);
 
-  set enabled(bool enabled) {
+  set enabled(bool? enabled) {
     _channel.invokeMethod('mediaStreamTrackSetEnable',
         <String, dynamic>{'trackId': _trackId, 'enabled': enabled});
     _enabled = enabled;
   }
 
-  bool get enabled => _enabled;
-  String get label => _label;
-  String get kind => _kind;
-  String get id => _trackId;
+  bool? get enabled => _enabled;
+  String? get label => _label;
+  String? get kind => _kind;
+  String? get id => _trackId;
 
   ///Future contains isFrontCamera
   ///Throws error if switching camera failed
-  Future<bool> switchCamera() =>
+  Future<bool?> switchCamera() =>
     _channel.invokeMethod(
       'mediaStreamTrackSwitchCamera',
       <String, dynamic>{'trackId': _trackId},

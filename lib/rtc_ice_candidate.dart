@@ -1,8 +1,8 @@
 
 class RTCIceCandidate {
-  String candidate;
-  String sdpMid;
-  int sdpMlineIndex;
+  String? candidate;
+  String? sdpMid;
+  int? sdpMlineIndex;
 
   RTCIceCandidate(this.candidate, this.sdpMid, this.sdpMlineIndex);
 
