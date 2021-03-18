@@ -6,10 +6,10 @@ import '../interface/rtc_track_event.dart';
 
 class RTCTrackEventWeb extends RTCTrackEvent {
   RTCTrackEventWeb(
-      {RTCRtpReceiver receiver,
-      List<MediaStream> streams,
-      MediaStreamTrack track,
-      RTCRtpTransceiver transceiver})
+      {required RTCRtpReceiver receiver,
+      required List<MediaStream> streams,
+      required MediaStreamTrack track,
+      required RTCRtpTransceiver transceiver})
       : super(
             receiver: receiver,
             streams: streams,

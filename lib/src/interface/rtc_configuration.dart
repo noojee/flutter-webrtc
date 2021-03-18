@@ -1,9 +1,9 @@
 abstract class RTCOfferOptions {
   RTCOfferOptions({
-    bool iceRestart,
-    bool offerToReceiveAudio,
-    bool offerToReceiveVideo,
-    bool voiceActivityDetection,
+    required bool iceRestart,
+    required bool offerToReceiveAudio,
+    required bool offerToReceiveVideo,
+    required bool voiceActivityDetection,
   });
   bool get iceRestart;
   bool get offerToReceiveAudio;
@@ -12,18 +12,18 @@ abstract class RTCOfferOptions {
 }
 
 abstract class RTCAnswerOptions {
-  RTCAnswerOptions({bool voiceActivityDetection});
+  RTCAnswerOptions({required bool voiceActivityDetection});
   bool get voiceActivityDetection;
 }
 
 abstract class RTCConfiguration {
   RTCConfiguration({
-    List<RTCIceServer> iceServers,
-    String rtcpMuxPolicy,
-    String iceTransportPolicy,
-    String bundlePolicy,
-    String peerIdentity,
-    int iceCandidatePoolSize,
+    required List<RTCIceServer> iceServers,
+    required String rtcpMuxPolicy,
+    required String iceTransportPolicy,
+    required String bundlePolicy,
+    required String peerIdentity,
+    required int iceCandidatePoolSize,
   });
   List<RTCIceServer> get iceServers;
 
@@ -46,7 +46,7 @@ abstract class RTCConfiguration {
 }
 
 abstract class RTCIceServer {
-  RTCIceServer({String urls, String username, String credential});
+  RTCIceServer({required String urls, required String username, required String credential});
   // String or List<String>
   dynamic get urls;
   String get username;

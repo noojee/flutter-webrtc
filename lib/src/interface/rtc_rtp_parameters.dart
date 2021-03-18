@@ -2,12 +2,12 @@ import 'rtc_rtcp_parameters.dart';
 
 class RTCRTPCodec {
   RTCRTPCodec(
-      {this.payloadType,
-      this.name,
-      this.kind,
-      this.clockRate,
-      this.numChannels,
-      this.parameters});
+      {required this.payloadType,
+      required this.name,
+      required this.kind,
+      required this.clockRate,
+      required this.numChannels,
+      required this.parameters});
 
   factory RTCRTPCodec.fromMap(Map<dynamic, dynamic> map) {
     return RTCRTPCodec(
@@ -51,13 +51,13 @@ class RTCRTPCodec {
 class RTCRtpEncoding {
   RTCRtpEncoding(
       {this.rid,
-      this.active,
-      this.maxBitrate,
-      this.maxFramerate,
-      this.minBitrate,
-      this.numTemporalLayers,
-      this.scaleResolutionDownBy,
-      this.ssrc});
+      this.active = true,
+      required this.maxBitrate,
+      required this.maxFramerate,
+      required this.minBitrate,
+      this.numTemporalLayers = 1,
+      this.scaleResolutionDownBy = 1.0,
+       this.ssrc});
 
   factory RTCRtpEncoding.fromMap(Map<dynamic, dynamic> map) {
     return RTCRtpEncoding(
@@ -73,7 +73,7 @@ class RTCRtpEncoding {
 
   /// If non-null, this represents the RID that identifies this encoding layer.
   /// RIDs are used to identify layers in simulcast.
-  String rid;
+  String? rid;
 
   /// Set to true to cause this encoding to be sent, and false for it not to
   /// be sent.
@@ -82,13 +82,13 @@ class RTCRtpEncoding {
   /// If non-null, this represents the Transport Independent Application
   /// Specific maximum bandwidth defined in RFC3890. If null, there is no
   /// maximum bitrate.
-  int maxBitrate;
+  int? maxBitrate;
 
   /// The minimum bitrate in bps for video.
-  int minBitrate;
+  int? minBitrate;
 
   /// The max framerate in fps for video.
-  int maxFramerate;
+  int? maxFramerate;
 
   /// The number of temporal layers for video.
   int numTemporalLayers = 1;
@@ -99,25 +99,25 @@ class RTCRtpEncoding {
 
   /// SSRC to be used by this encoding.
   /// Can't be changed between getParameters/setParameters.
-  int ssrc;
+  int? ssrc;
 
   Map<String, dynamic> toMap() {
     return {
       if (rid != null) 'rid': rid,
-      'active': active ?? true,
+      'active': active,
       if (maxBitrate != null) 'maxBitrate': maxBitrate,
       if (maxFramerate != null) 'maxFramerate': maxFramerate,
       if (minBitrate != null) 'minBitrate': minBitrate,
-      if (numTemporalLayers != null) 'numTemporalLayers': numTemporalLayers,
-      if (scaleResolutionDownBy != null)
-        'scaleResolutionDownBy': scaleResolutionDownBy,
+      'numTemporalLayers': numTemporalLayers,
+      'scaleResolutionDownBy': scaleResolutionDownBy,
       if (ssrc != null) 'ssrc': ssrc,
     };
   }
 }
 
 class RTCHeaderExtension {
-  RTCHeaderExtension({this.uri, this.id, this.encrypted});
+  RTCHeaderExtension(
+      {required this.uri, required this.id, required this.encrypted});
   factory RTCHeaderExtension.fromMap(Map<dynamic, dynamic> map) {
     return RTCHeaderExtension(
         uri: map['uri'], id: map['id'], encrypted: map['encrypted']);
@@ -143,11 +143,11 @@ class RTCHeaderExtension {
 
 class RTCRtpParameters {
   RTCRtpParameters(
-      {this.transactionId,
-      this.rtcp,
-      this.headerExtensions,
-      this.encodings,
-      this.codecs});
+      {required this.transactionId,
+      required this.rtcp,
+      required this.headerExtensions,
+      required this.encodings,
+      required this.codecs});
 
   factory RTCRtpParameters.fromMap(Map<dynamic, dynamic> map) {
     var encodings = <RTCRtpEncoding>[];

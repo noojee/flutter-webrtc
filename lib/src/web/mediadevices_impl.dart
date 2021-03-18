@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html' as html;
-import 'dart:js';
 import 'dart:js_util' as jsutil;
 
 import '../interface/media_stream.dart';
@@ -25,6 +24,10 @@ class MediaDevicesWeb extends MediaDevices {
 
       final mediaDevices = html.window.navigator.mediaDevices;
 
+      if (mediaDevices == null) {
+        throw 'html.window.navigator.mediaDevices returned null';
+      }
+
       if (jsutil.hasProperty(mediaDevices, 'getUserMedia')) {
         var args = jsutil.jsify(mediaConstraints);
         final jsStream = await jsutil.promiseToFuture<html.MediaStream>(
@@ -48,6 +51,10 @@ class MediaDevicesWeb extends MediaDevices {
       Map<String, dynamic> mediaConstraints) async {
     try {
       final mediaDevices = html.window.navigator.mediaDevices;
+
+      if (mediaDevices == null) {
+        throw ' html.window.navigator.mediaDevices returned null';
+      }
       if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
         final arg = jsutil.jsify(mediaConstraints);
         final jsStream = await jsutil.promiseToFuture<html.MediaStream>(
@@ -80,12 +87,20 @@ class MediaDevicesWeb extends MediaDevices {
 
   @override
   Future<List<dynamic>> getSources() async {
-    return await html.window.navigator.mediaDevices.enumerateDevices();
+    var mediaDevices = html.window.navigator.mediaDevices;
+
+    if (mediaDevices == null) {
+      throw 'html.window.navigator.mediaDevices returned null';
+    }
+    return await mediaDevices.enumerateDevices();
   }
 
   @override
   MediaTrackSupportedConstraints getSupportedConstraints() {
     final mediaDevices = html.window.navigator.mediaDevices;
+    if (mediaDevices == null) {
+      throw 'html.window.navigator.mediaDevices returned null';
+    }
     var _mapConstraints = mediaDevices.getSupportedConstraints();
 
     return MediaTrackSupportedConstraints(

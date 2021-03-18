@@ -17,7 +17,7 @@ class MediaDeviceNative extends MediaDevices {
         'getUserMedia',
         <String, dynamic>{'constraints': mediaConstraints},
       );
-      String streamId = response['streamId'];
+      String streamId = response!['streamId'];
       var stream = MediaStreamNative(streamId, 'local');
       stream.setMediaTracks(response['audioTracks'], response['videoTracks']);
       return stream;
@@ -35,7 +35,7 @@ class MediaDeviceNative extends MediaDevices {
         'getDisplayMedia',
         <String, dynamic>{'constraints': mediaConstraints},
       );
-      String streamId = response['streamId'];
+      String streamId = response!['streamId'];
       var stream = MediaStreamNative(streamId, 'local');
       stream.setMediaTracks(response['audioTracks'], response['videoTracks']);
       return stream;
@@ -52,7 +52,7 @@ class MediaDeviceNative extends MediaDevices {
         'getSources',
         <String, dynamic>{},
       );
-      List<dynamic> sources = response['sources'];
+      List<dynamic> sources = response!['sources'];
 
       return sources;
     } on PlatformException catch (e) {

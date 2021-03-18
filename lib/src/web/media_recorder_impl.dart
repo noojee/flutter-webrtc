@@ -9,16 +9,16 @@ import '../interface/media_stream_track.dart';
 import 'media_stream_impl.dart';
 
 class MediaRecorderWeb extends MediaRecorder {
-  html.MediaRecorder _recorder;
-  Completer<String> _completer;
+  late final html.MediaRecorder _recorder;
+  Completer<String>? _completer;
 
   @override
   Future<void> start(
     String path, {
-    MediaStreamTrack videoTrack,
-    MediaStreamTrack audioTrack,
-    RecorderAudioChannel audioChannel,
-    int rotation,
+    MediaStreamTrack? videoTrack,
+    MediaStreamTrack? audioTrack,
+    RecorderAudioChannel? audioChannel,
+    int? rotation,
   }) {
     throw 'Use startWeb on Flutter Web!';
   }
@@ -26,11 +26,14 @@ class MediaRecorderWeb extends MediaRecorder {
   @override
   void startWeb(
     MediaStream stream, {
-    Function(dynamic blob, bool isLastOne) onDataChunk,
+    Function(dynamic blob, bool isLastOne)? onDataChunk,
     String mimeType = 'video/webm',
   }) {
     var _native = stream as MediaStreamWeb;
-    _recorder = html.MediaRecorder(_native.jsStream, {'mimeType': mimeType});
+    if (_native.jsStream == null) {
+      throw 'startWeb failed stream.jsStream == null';
+    }
+    _recorder = html.MediaRecorder(_native.jsStream!, {'mimeType': mimeType});
     if (onDataChunk == null) {
       var _chunks = <html.Blob>[];
       _completer = Completer<String>();
@@ -62,7 +65,7 @@ class MediaRecorderWeb extends MediaRecorder {
 
   @override
   Future<dynamic> stop() {
-    _recorder?.stop();
+    _recorder.stop();
     return _completer?.future ?? Future.value();
   }
 }

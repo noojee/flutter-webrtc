@@ -16,14 +16,14 @@ class GetUserMediaSample extends StatefulWidget {
 }
 
 class _GetUserMediaSampleState extends State<GetUserMediaSample> {
-  MediaStream _localStream;
+  MediaStream? _localStream;
   final _localRenderer = RTCVideoRenderer();
   bool _inCalling = false;
-  MediaRecorder _mediaRecorder;
+  MediaRecorder? _mediaRecorder;
 
-  List<MediaDeviceInfo> _cameras;
+  List<MediaDeviceInfo> _cameras = <MediaDeviceInfo>[];
   bool get _isRec => _mediaRecorder != null;
-  List<dynamic> cameras;
+  List<dynamic> cameras = <dynamic>[];
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   Future<void> _stop() async {
     try {
       if (_localStream != null) {
-        await _localStream.dispose();
+        await _localStream!.dispose();
         _localStream = null;
       }
       _localRenderer.srcObject = null;
@@ -101,7 +101,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   void _startRecording() async {
     _mediaRecorder = MediaRecorder();
     setState(() {});
-    _mediaRecorder.startWeb(_localStream);
+    _mediaRecorder!.startWeb(_localStream!);
   }
 
   void _stopRecording() async {
@@ -114,7 +114,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
   }
 
   void _captureFrame() async {
-    final videoTrack = _localStream
+    final videoTrack = _localStream!
         .getVideoTracks()
         .firstWhere((track) => track.kind == 'video');
     final frame = await videoTrack.captureFrame();
@@ -123,9 +123,9 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
         builder: (context) => AlertDialog(
               content: Image.network(frame, height: 720, width: 1280),
               actions: <Widget>[
-                FlatButton(
-                  child: Text('OK'),
+                TextButton(
                   onPressed: Navigator.of(context, rootNavigator: true).pop,
+                  child: Text('OK'),
                 )
               ],
             ));
@@ -152,7 +152,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
                     return _cameras.map((device) {
                       return PopupMenuItem<String>(
                         value: device.deviceId,
-                        child: Text(device.label),
+                        child: Text(device.label??'Unknown'),
                       );
                     }).toList();
                   },
@@ -171,8 +171,8 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
               margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: RTCVideoView(_localRenderer, mirror: true),
               decoration: BoxDecoration(color: Colors.black54),
+              child: RTCVideoView(_localRenderer, mirror: true),
             ),
           );
         },
@@ -187,7 +187,7 @@ class _GetUserMediaSampleState extends State<GetUserMediaSample> {
 
   void _switchCamera(String deviceId) async {
     await Helper.switchCamera(
-        _localStream.getVideoTracks()[0], deviceId, _localStream);
+        _localStream!.getVideoTracks()[0], deviceId, _localStream!);
     setState(() {});
   }
 }

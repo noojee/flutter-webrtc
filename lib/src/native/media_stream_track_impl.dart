@@ -20,13 +20,13 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   bool _muted = false;
 
   @override
-  set enabled(bool enabled) {
+  set enabled(bool? enabled) {
     _channel.invokeMethod('mediaStreamTrackSetEnable',
         <String, dynamic>{'trackId': _trackId, 'enabled': enabled});
-    _enabled = enabled;
+    _enabled = enabled ?? false;
 
     if (kind == 'audio') {
-      _muted = !enabled;
+      _muted = !_enabled;
       muted ? onMute?.call() : onUnMute?.call();
     }
   }
@@ -47,10 +47,12 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   bool get muted => _muted;
 
   @override
-  Future<bool> hasTorch() => _channel.invokeMethod(
+  Future<bool> hasTorch() async =>
+      await _channel.invokeMethod(
         'mediaStreamTrackHasTorch',
         <String, dynamic>{'trackId': _trackId},
-      );
+      ) ??
+      Future.value(false);
 
   @override
   Future<void> setTorch(bool torch) => _channel.invokeMethod(
@@ -71,7 +73,7 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   }
 
   @override
-  Future<dynamic> captureFrame([String filePath]) {
+  Future<dynamic> captureFrame([String? filePath]) {
     return _channel.invokeMethod<void>(
       'captureFrame',
       <String, dynamic>{'trackId': _trackId, 'path': filePath},
@@ -79,7 +81,7 @@ class MediaStreamTrackNative extends MediaStreamTrack {
   }
 
   @override
-  Future<void> applyConstraints([Map<String, dynamic> constraints]) {
+  Future<void> applyConstraints([Map<String, dynamic>? constraints]) {
     if (constraints == null) return Future.value();
 
     var _current = getConstraints();

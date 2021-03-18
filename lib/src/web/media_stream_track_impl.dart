@@ -6,31 +6,31 @@ import '../interface/media_stream_track.dart';
 
 class MediaStreamTrackWeb extends MediaStreamTrack {
   MediaStreamTrackWeb(this.jsTrack) {
-    jsTrack.onEnded.listen((event) => onEnded?.call());
-    jsTrack.onMute.listen((event) => onMute?.call());
-    jsTrack.onUnmute.listen((event) => onUnMute?.call());
+    jsTrack?.onEnded.listen((event) => onEnded?.call());
+    jsTrack?.onMute.listen((event) => onMute?.call());
+    jsTrack?.onUnmute.listen((event) => onUnMute?.call());
   }
 
-  final html.MediaStreamTrack jsTrack;
+  final html.MediaStreamTrack? jsTrack;
 
   @override
-  String get id => jsTrack.id;
+  String? get id => jsTrack?.id;
 
   @override
-  String get kind => jsTrack.kind;
+  String? get kind => jsTrack?.kind;
 
   @override
-  String get label => jsTrack.label;
+  String? get label => jsTrack?.label;
 
   @override
-  bool get enabled => jsTrack.enabled;
+  bool? get enabled => jsTrack?.enabled;
 
   @override
-  bool get muted => jsTrack.muted;
+  bool? get muted => jsTrack?.muted;
 
   @override
-  set enabled(bool b) {
-    jsTrack.enabled = b;
+  set enabled(bool? b) {
+    jsTrack?.enabled = b;
   }
 
   @override
@@ -39,13 +39,17 @@ class MediaStreamTrackWeb extends MediaStreamTrack {
   }
 
   @override
-  Future<void> applyConstraints([Map<String, dynamic> constraints]) async {
+  Future<void> applyConstraints(Map<String, dynamic> constraints) async {
     // TODO(wermathurin): Wait for: https://github.com/dart-lang/sdk/commit/1a861435579a37c297f3be0cf69735d5b492bc6c
     // to be merged to use jsTrack.applyConstraints() directly
     final arg = js.jsify(constraints);
 
+    if (jsTrack == null) {
+      throw 'applyConstraints failed as jsTrack is null';
+    }
+
     final _val = await js.promiseToFuture<void>(
-        js.callMethod(jsTrack, 'applyConstraints', [arg]));
+        js.callMethod(jsTrack!, 'applyConstraints', [arg]));
     return _val;
   }
 
@@ -58,14 +62,17 @@ class MediaStreamTrackWeb extends MediaStreamTrack {
   // }
 
   @override
-  Future<dynamic> captureFrame([String filePath]) async {
-    final imageCapture = html.ImageCapture(jsTrack);
+  Future<dynamic> captureFrame([String? filePath]) async {
+    if (jsTrack == null) {
+      throw 'caputureFrame failed as jsTrack is null';
+    }
+    final imageCapture = html.ImageCapture(jsTrack!);
     final bitmap = await imageCapture.grabFrame();
-    final html.CanvasElement canvas = html.Element.canvas();
+    final canvas = html.Element.canvas() as html.CanvasElement;
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
-    final html.ImageBitmapRenderingContext renderer =
-        canvas.getContext('bitmaprenderer');
+    final renderer =
+        canvas.getContext('bitmaprenderer') as html.ImageBitmapRenderingContext;
     renderer.transferFromImageBitmap(bitmap);
     final dataUrl = canvas.toDataUrl();
     bitmap.close();
@@ -79,7 +86,7 @@ class MediaStreamTrackWeb extends MediaStreamTrack {
 
   @override
   Future<void> stop() async {
-    jsTrack.stop();
+    jsTrack?.stop();
   }
 
   @override

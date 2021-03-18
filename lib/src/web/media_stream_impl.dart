@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:html' as html;
 
+import 'package:logging/logging.dart';
+
 import '../interface/media_stream.dart';
 import '../interface/media_stream_track.dart';
 import 'media_stream_track_impl.dart';
 
 class MediaStreamWeb extends MediaStream {
-  MediaStreamWeb(this.jsStream, String ownerTag) : super(jsStream.id, ownerTag);
-  final html.MediaStream jsStream;
+  MediaStreamWeb(this.jsStream, String ownerTag)
+      : super(jsStream?.id ?? '', ownerTag);
+
+  var log = Logger('MediaStreamWeb');
+  final html.MediaStream? jsStream;
 
   @override
   Future<void> getMediaTracks() {
@@ -18,7 +23,11 @@ class MediaStreamWeb extends MediaStream {
   Future<void> addTrack(MediaStreamTrack track, {bool addToNative = true}) {
     if (addToNative) {
       var _native = track as MediaStreamTrackWeb;
-      jsStream.addTrack(_native.jsTrack);
+      if (_native.jsTrack != null) {
+        jsStream?.addTrack(_native.jsTrack!);
+      } else {
+        log.warning('addTrack failed as native.jsTrack is null');
+      }
     }
     return Future.value();
   }
@@ -28,7 +37,11 @@ class MediaStreamWeb extends MediaStream {
       {bool removeFromNative = true}) async {
     if (removeFromNative) {
       var _native = track as MediaStreamTrackWeb;
-      jsStream.removeTrack(_native.jsTrack);
+      if (_native.jsTrack != null) {
+        jsStream?.removeTrack(_native.jsTrack!);
+      } else {
+        log.warning('removeTrack failed as native.jsTrack is null');
+      }
     }
   }
 
@@ -36,7 +49,7 @@ class MediaStreamWeb extends MediaStream {
   List<MediaStreamTrack> getAudioTracks() {
     var audioTracks = <MediaStreamTrack>[];
     jsStream
-        .getAudioTracks()
+        ?.getAudioTracks()
         .forEach((jsTrack) => audioTracks.add(MediaStreamTrackWeb(jsTrack)));
     return audioTracks;
   }
@@ -45,7 +58,7 @@ class MediaStreamWeb extends MediaStream {
   List<MediaStreamTrack> getVideoTracks() {
     var audioTracks = <MediaStreamTrack>[];
     jsStream
-        .getVideoTracks()
+        ?.getVideoTracks()
         .forEach((jsTrack) => audioTracks.add(MediaStreamTrackWeb(jsTrack)));
     return audioTracks;
   }
@@ -53,7 +66,7 @@ class MediaStreamWeb extends MediaStream {
   @override
   Future<void> dispose() async {
     getTracks().forEach((element) {
-      element.dispose();
+      element.stop();
     });
     return super.dispose();
   }
@@ -64,10 +77,10 @@ class MediaStreamWeb extends MediaStream {
   }
 
   @override
-  bool get active => jsStream.active;
+  bool? get active => jsStream?.active ?? false;
 
   @override
   MediaStream clone() {
-    return MediaStreamWeb(jsStream.clone(), ownerTag);
+    return MediaStreamWeb(jsStream?.clone(), ownerTag);
   }
 }

@@ -10,15 +10,15 @@ import 'utils.dart';
 class RTCVideoRendererNative extends VideoRenderer {
   RTCVideoRendererNative();
   final _channel = WebRTC.methodChannel();
-  int _textureId;
-  MediaStream _srcObject;
-  StreamSubscription<dynamic> _eventSubscription;
+  int? _textureId;
+  MediaStream? _srcObject;
+  late final StreamSubscription<dynamic> _eventSubscription;
 
   @override
   Future<void> initialize() async {
     final response = await _channel
         .invokeMethod<Map<dynamic, dynamic>>('createVideoRenderer', {});
-    _textureId = response['textureId'];
+    _textureId = response!['textureId'];
     _eventSubscription = EventChannel('FlutterWebRTC/Texture$textureId')
         .receiveBroadcastStream()
         .listen(eventListener, onError: errorListener);
@@ -31,14 +31,17 @@ class RTCVideoRendererNative extends VideoRenderer {
   int get videoHeight => value.height.toInt();
 
   @override
-  int get textureId => _textureId;
+  int get textureId {
+    if (_textureId == null) throw 'Call initialize before setting the stream';
+    return _textureId!;
+  }
 
   @override
-  MediaStream get srcObject => _srcObject;
+  MediaStream? get srcObject => _srcObject;
 
   @override
-  set srcObject(MediaStream stream) {
-    if (textureId == null) throw 'Call initialize before setting the stream';
+  set srcObject(MediaStream? stream) {
+    if (_textureId == null) throw 'Call initialize before setting the stream';
 
     _srcObject = stream;
     _channel.invokeMethod('videoRendererSetSrcObject', <String, dynamic>{
@@ -54,7 +57,7 @@ class RTCVideoRendererNative extends VideoRenderer {
 
   @override
   Future<void> dispose() async {
-    await _eventSubscription?.cancel();
+    await _eventSubscription.cancel();
     await _channel.invokeMethod(
       'videoRendererDispose',
       <String, dynamic>{'textureId': _textureId},
@@ -84,7 +87,7 @@ class RTCVideoRendererNative extends VideoRenderer {
   }
 
   void errorListener(Object obj) {
-    final PlatformException e = obj;
+    final e = obj as PlatformException;
     throw e;
   }
 
@@ -92,22 +95,22 @@ class RTCVideoRendererNative extends VideoRenderer {
   bool get renderVideo => srcObject != null;
 
   @override
-  bool get muted => _srcObject?.getAudioTracks()[0]?.muted ?? true;
+  bool get muted => _srcObject?.getAudioTracks()[0].muted ?? true;
 
   @override
   set muted(bool mute) {
     if (_srcObject == null) {
       throw Exception('Can\'t be muted: The MediaStream is null');
     }
-    if (_srcObject.ownerTag != 'local') {
+    if (_srcObject!.ownerTag != 'local') {
       throw Exception(
           'You\'re trying to mute a remote track, this is not supported');
     }
-    if (_srcObject.getAudioTracks()[0] == null) {
+    if (_srcObject?.getAudioTracks()[0] == null) {
       throw Exception('Can\'t be muted: The MediaStreamTrack is null');
     }
 
-    Helper.setMicrophoneMute(mute, _srcObject.getAudioTracks()[0]);
+    Helper.setMicrophoneMute(mute, _srcObject!.getAudioTracks()[0]);
   }
 
   @override

@@ -30,18 +30,16 @@ class RTCDataChannelInit {
 /// text data as a [String].
 class RTCDataChannelMessage {
   /// Construct a text message with a [String].
-  RTCDataChannelMessage(String text) {
+  RTCDataChannelMessage(String text) : _isBinary = false {
     _data = text;
-    _isBinary = false;
   }
 
   /// Construct a binary message with a [Uint8List].
-  RTCDataChannelMessage.fromBinary(Uint8List binary) {
+  RTCDataChannelMessage.fromBinary(Uint8List binary) : _isBinary = true {
     _data = binary;
-    _isBinary = true;
   }
   dynamic _data;
-  bool _isBinary;
+  final bool _isBinary;
 
   /// Tells whether this message contains binary.
   /// If this is false, it's a text message.
@@ -68,19 +66,19 @@ typedef RTCDataChannelOnMessageCallback = void Function(
 abstract class RTCDataChannel {
   RTCDataChannel();
 
-  RTCDataChannelStateCallback onDataChannelState;
-  RTCDataChannelOnMessageCallback onMessage;
+  RTCDataChannelStateCallback? onDataChannelState;
+  RTCDataChannelOnMessageCallback? onMessage;
 
   /// Get current state.
-  RTCDataChannelState get state;
+  RTCDataChannelState? get state;
 
   /// Stream of state change events. Emits the new state on change.
   /// Closes when the [RTCDataChannel] is closed.
-  Stream<RTCDataChannelState> stateChangeStream;
+  Stream<RTCDataChannelState>? stateChangeStream;
 
   /// Stream of incoming messages. Emits the message.
   /// Closes when the [RTCDataChannel] is closed.
-  Stream<RTCDataChannelMessage> messageStream;
+  Stream<RTCDataChannelMessage>? messageStream;
 
   /// Send a message to this datachannel.
   /// To send a text message, use the default constructor to instantiate a text [RTCDataChannelMessage]

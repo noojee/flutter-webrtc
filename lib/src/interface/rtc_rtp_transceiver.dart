@@ -12,9 +12,9 @@ List<RTCRtpEncoding> listToRtpEncodings(List<Map<String, dynamic>> list) {
 
 class RTCRtpTransceiverInit {
   RTCRtpTransceiverInit({
-    this.direction,
-    this.streams,
-    this.sendEncodings,
+    required this.direction,
+    required this.streams,
+    required this.sendEncodings,
   });
   TransceiverDirection direction;
   List<MediaStream> streams;
@@ -32,7 +32,7 @@ abstract class RTCRtpTransceiver {
 
   RTCRtpReceiver get receiver;
 
-  bool get stoped;
+  bool get stopped;
 
   String get transceiverId;
 

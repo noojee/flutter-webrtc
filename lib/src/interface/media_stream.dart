@@ -9,10 +9,10 @@ abstract class MediaStream {
   final String _ownerTag;
 
   /// The event type of this event handler is addtrack.
-  MediaTrackCallback onAddTrack;
+  MediaTrackCallback? onAddTrack;
 
   /// The event type of this event handler is removetrack.
-  MediaTrackCallback onRemoveTrack;
+  MediaTrackCallback? onRemoveTrack;
 
   String get id => _id;
 
@@ -21,7 +21,7 @@ abstract class MediaStream {
   /// The active attribute return true if this [MediaStream] is active and false otherwise.
   /// [MediaStream] is considered active if at least one of its [MediaStreamTracks] is not in the [MediaStreamTrack.ended] state.
   /// Once every track has ended, the stream's active property becomes false.
-  bool get active;
+  bool? get active;
 
   @deprecated
   Future<void> getMediaTracks();

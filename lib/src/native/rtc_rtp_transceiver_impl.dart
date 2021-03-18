@@ -27,7 +27,7 @@ class RTCRtpTransceiverInitNative extends RTCRtpTransceiverInit {
 
   factory RTCRtpTransceiverInitNative.fromMap(Map<dynamic, dynamic> map) {
     return RTCRtpTransceiverInitNative(
-        typeStringToRtpTransceiverDirection[map['direction']],
+        typeStringToRtpTransceiverDirection[map['direction']]!,
         (map['streams'] as List<dynamic>)
             .map((e) => MediaStreamNative.fromMap(map))
             .toList(),
@@ -56,13 +56,13 @@ class RTCRtpTransceiverInitNative extends RTCRtpTransceiverInit {
 
 class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   RTCRtpTransceiverNative(this._id, this._direction, this._mid, this._sender,
-      this._receiver, _peerConnectionId);
+      this._receiver, this._peerConnectionId);
 
   factory RTCRtpTransceiverNative.fromMap(Map<dynamic, dynamic> map,
-      {String peerConnectionId}) {
+      {required String peerConnectionId}) {
     var transceiver = RTCRtpTransceiverNative(
         map['transceiverId'],
-        typeStringToRtpTransceiverDirection[map['direction']],
+        typeStringToRtpTransceiverDirection[map['direction']]!,
         map['mid'],
         RTCRtpSenderNative.fromMap(map['sender'],
             peerConnectionId: peerConnectionId),
@@ -73,7 +73,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   }
 
   static List<RTCRtpTransceiverNative> fromMaps(List<dynamic> map,
-      {String peerConnectionId}) {
+      {required String peerConnectionId}) {
     return map
         .map((e) => RTCRtpTransceiverNative.fromMap(e,
             peerConnectionId: peerConnectionId))
@@ -83,7 +83,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   final MethodChannel _channel = WebRTC.methodChannel();
   String _peerConnectionId;
   String _id;
-  bool _stop;
+  bool _stopped = false;
   TransceiverDirection _direction;
   String _mid;
   RTCRtpSender _sender;
@@ -106,7 +106,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
   RTCRtpReceiver get receiver => _receiver;
 
   @override
-  bool get stoped => _stop;
+  bool get stopped => _stopped;
 
   @override
   String get transceiverId => _id;
@@ -133,7 +133,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
         'peerConnectionId': _peerConnectionId,
         'transceiverId': _id
       });
-      _direction = typeStringToRtpTransceiverDirection[response['result']];
+      _direction = typeStringToRtpTransceiverDirection[response['result']]!;
       return _direction;
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpTransceiver::getCurrentDirection: ${e.message}';
@@ -147,6 +147,7 @@ class RTCRtpTransceiverNative extends RTCRtpTransceiver {
         'peerConnectionId': _peerConnectionId,
         'transceiverId': _id
       });
+      _stopped = true;
     } on PlatformException catch (e) {
       throw 'Unable to RTCRtpTransceiver::stop: ${e.message}';
     }

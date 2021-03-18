@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'dart:js_util' as jsutil;
 
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 
 import '../interface/media_stream.dart';
 import '../interface/rtc_video_renderer.dart';
@@ -34,17 +35,18 @@ const String _kDefaultErrorMessage =
 
 class RTCVideoRendererWeb extends VideoRenderer {
   RTCVideoRendererWeb() : _textureId = _textureCounter++;
+  static final log = Logger('RTCVideoRendererWeb');
 
   static int _textureCounter = 1;
   final int _textureId;
-  html.VideoElement _videoElement;
-  MediaStream _srcObject;
+  html.VideoElement? _videoElement;
+  MediaStream? _srcObject;
   final _subscriptions = <StreamSubscription>[];
 
-  set objectFit(String fit) => _videoElement.style.objectFit = fit;
+  set objectFit(String fit) => _videoElement?.style.objectFit = fit;
 
   set mirror(bool mirror) =>
-      _videoElement.style.transform = 'rotateY(${mirror ? "180" : "0"}deg)';
+      _videoElement?.style.transform = 'rotateY(${mirror ? "180" : "0"}deg)';
 
   @override
   int get videoWidth => value.width.toInt();
@@ -74,14 +76,14 @@ class RTCVideoRendererWeb extends VideoRenderer {
       ..style.border = 'none';
 
     // Allows Safari iOS to play the video inline
-    _videoElement.setAttribute('playsinline', 'true');
+    _videoElement!.setAttribute('playsinline', 'true');
 
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
         'RTCVideoRenderer-$textureId', (int viewId) => _videoElement);
 
     _subscriptions.add(
-      _videoElement.onCanPlay.listen(
+      _videoElement!.onCanPlay.listen(
         (dynamic _) {
           _updateAllValues();
           //print('RTCVideoRenderer: videoElement.onCanPlay ${value.toString()}');
@@ -90,7 +92,7 @@ class RTCVideoRendererWeb extends VideoRenderer {
     );
 
     _subscriptions.add(
-      _videoElement.onResize.listen(
+      _videoElement!.onResize.listen(
         (dynamic _) {
           _updateAllValues();
           onResize?.call();
@@ -101,25 +103,31 @@ class RTCVideoRendererWeb extends VideoRenderer {
 
     // The error event fires when some form of error occurs while attempting to load or perform the media.
     _subscriptions.add(
-      _videoElement.onError.listen(
+      _videoElement!.onError.listen(
         (html.Event _) {
           // The Event itself (_) doesn't contain info about the actual error.
           // We need to look at the HTMLMediaElement.error.
           // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/error
-          var error = _videoElement.error;
+          var error = _videoElement!.error;
+          var code = -1;
+          var message = error?.toString();
+          if (error != null) {
+            code = error.code;
+            message = error.message;
+          }
+          message ??= _kDefaultErrorMessage;
           print('RTCVideoRenderer: videoElement.onError, ${error.toString()}');
           throw PlatformException(
-            code: _kErrorValueToErrorName[error.code],
-            message:
-                error.message != '' ? error.message : _kDefaultErrorMessage,
-            details: _kErrorValueToErrorDescription[error.code],
+            code: _kErrorValueToErrorName[code] ?? '$code',
+            message: message,
+            details: _kErrorValueToErrorDescription[code],
           );
         },
       ),
     );
 
     _subscriptions.add(
-      _videoElement.onEnded.listen(
+      _videoElement!.onEnded.listen(
         (dynamic _) {
           //print('RTCVideoRenderer: videoElement.onEnded');
         },
@@ -130,28 +138,28 @@ class RTCVideoRendererWeb extends VideoRenderer {
   void _updateAllValues() {
     value = value.copyWith(
         rotation: 0,
-        width: _videoElement?.videoWidth?.toDouble() ?? 0.0,
-        height: _videoElement?.videoHeight?.toDouble() ?? 0.0,
+        width: _videoElement?.videoWidth.toDouble() ?? 0.0,
+        height: _videoElement?.videoHeight.toDouble() ?? 0.0,
         renderVideo: renderVideo);
   }
 
   @override
-  MediaStream get srcObject => _srcObject;
+  MediaStream? get srcObject => _srcObject;
 
   @override
-  set srcObject(MediaStream stream) {
+  set srcObject(MediaStream? stream) {
     if (_videoElement == null) {
       throw 'Call initialize before setting the stream';
     }
     if (stream == null) {
-      _videoElement.srcObject = null;
+      _videoElement?.srcObject = null;
       _srcObject = null;
       return;
     }
     _srcObject = stream;
     var jsStream = (stream as MediaStreamWeb).jsStream;
-    _videoElement.srcObject = jsStream;
-    _videoElement.muted = stream.ownerTag == 'local';
+    _videoElement?.srcObject = jsStream;
+    _videoElement?.muted = stream.ownerTag == 'local';
     value = value.copyWith(renderVideo: renderVideo);
   }
 
@@ -160,19 +168,21 @@ class RTCVideoRendererWeb extends VideoRenderer {
     await _srcObject?.dispose();
     _srcObject = null;
     _subscriptions.forEach((s) => s.cancel());
-    _videoElement.removeAttribute('src');
-    _videoElement.load();
+    _videoElement?.removeAttribute('src');
+    _videoElement?.load();
     return super.dispose();
   }
 
   @override
   Future<bool> audioOutput(String deviceId) async {
     try {
-      if (jsutil.hasProperty(_videoElement, 'setSinkId')) {
-        await jsutil.promiseToFuture<void>(
-            jsutil.callMethod(_videoElement, 'setSinkId', [deviceId]));
+      if (_videoElement != null) {
+        if (jsutil.hasProperty(_videoElement!, 'setSinkId')) {
+          await jsutil.promiseToFuture<void>(
+              jsutil.callMethod(_videoElement!, 'setSinkId', [deviceId]));
 
-        return true;
+          return true;
+        }
       }
     } catch (e) {
       print('Unable to setSinkId: ${e.toString()}');

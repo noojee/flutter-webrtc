@@ -25,7 +25,7 @@ class RTCFactoryNative extends RTCFactory {
     final response = await _channel
         .invokeMethod<Map<dynamic, dynamic>>('createLocalMediaStream');
 
-    return MediaStreamNative(response['streamId'], label);
+    return MediaStreamNative(response!['streamId'], label);
   }
 
   @override
@@ -49,7 +49,7 @@ class RTCFactoryNative extends RTCFactory {
       },
     );
 
-    String peerConnectionId = response['peerConnectionId'];
+    String peerConnectionId = response!['peerConnectionId'];
     return RTCPeerConnectionNative(peerConnectionId, configuration);
   }
 
